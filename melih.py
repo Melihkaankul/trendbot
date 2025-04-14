@@ -35,46 +35,36 @@ def trendgetir(ulke="TR"):
         return False
 
 
-def trendekle(title, trafik, ):
+def trendekle(title, trafik):
     conn = sqlitecloud.connect(
         "sqlitecloud://cdmzfpcahz.g2.sqlite.cloud:8860/chinook.sqlite?apikey=FpNREZerLXaLfnw0K1TYLdshBSEVlFP1U3erozLh1ac")
     c = conn.cursor()
-    c.execute("SELECT * FROM trendler WHERE title=?", (title,))
-    say = c.fetchone()
-    if len(c.fetchall()) == 0:
-        şimdi = str(datetime.now())
-        c.execute("INSERT INTO trendler VALUES(?,?,?)", (title, trafik, şimdi))
+
+    c.execute("SELECT rowid,* FROM trendler WHERE title=?", (title,))
+    say = c.fetchall()
+    if len(say) == 0:
+        simdi = str(datetime.now())
+        c.execute("INSERT INTO trendler VALUES(?,?,?)", (title, trafik, simdi))
         id = c.lastrowid
         conn.commit()
         return id
     else:
-        trend = c.fetchone()
-        return trend[0]
+        trend = say
+        return trend[0][0]
 
 
 def haberekle(trend, title, url, resim, kaynak):
     conn = sqlitecloud.connect(
         "sqlitecloud://cdmzfpcahz.g2.sqlite.cloud:8860/chinook.sqlite?apikey=FpNREZerLXaLfnw0K1TYLdshBSEVlFP1U3erozLh1ac")
     c = conn.cursor()
+
     c.execute("SELECT * FROM haberler WHERE url=?", (url,))
     say = c.fetchall()
     if len(say) == 0:
-        şimdi = str(datetime.now())
-        tarih = int(datetime.timestamp(datetime.now()))
+        simdi = datetime.now()
+        tarih = datetime.timestamp(simdi)
         c.execute("INSERT INTO haberler VALUES(?,?,?,?,?,?)", (trend, title, url, resim, kaynak, tarih))
-        id = c.lastrowid
+        conn.commit()
+        return True
 
-
-conn = sqlitecloud.connect(
-    "sqlitecloud://cdmzfpcahz.g2.sqlite.cloud:8860/chinook.sqlite?apikey=FpNREZerLXaLfnw0K1TYLdshBSEVlFP1U3erozLh1ac")
-c = conn.cursor()
-c.execute("CREATE TABLE IF NOT EXISTS trendler(title TEXT,trafik INTEGER,tarih TEXT)")
-conn.commit()
-c.execute("CREATE TABLE IF NOT EXISTS haberler(trend INTEGER,title TEXT,url TEXT,resim TEXT,kaynak TEXT,tarih INTEGER)")
-conn.commit()
-trendler = trendgetir()
-for t in trendler:
-    id = trendekle(t['title'], t['trafik'])
-    haberler = t['haberler']
-    for h in haberler:
-        haberekle(id, h['title'], h['url'], h['resim'], h['kaynak'])
+    return False
