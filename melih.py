@@ -68,3 +68,21 @@ def haberekle(trend, title, url, resim, kaynak):
         return True
 
     return False
+
+
+conn = sqlitecloud.connect(
+    "sqlitecloud://cdmzfpcahz.g2.sqlite.cloud:8860/chinook.sqlite?apikey=FpNREZerLXaLfnw0K1TYLdshBSEVlFP1U3erozLh1ac")
+c = conn.cursor()
+
+c.execute("CREATE TABLE IF NOT EXISTS trendler(title TEXT,trafik INTEGER,tarih TEXT)")
+conn.commit()
+
+c.execute("CREATE TABLE IF NOT EXISTS haberler(trend INTEGER,title TEXT,url TEXT,resim TEXT,kaynak TEXT,tarih INTEGER)")
+conn.commit()
+
+trendler = trendgetir()
+for t in trendler:
+    id = trendekle(t['title'], t['trafik'])
+    haberler = t['haberler']
+    for h in haberler:
+        haberekle(id, h['title'], h['url'], h['resim'], h['kaynak'])
