@@ -86,7 +86,7 @@ for t in trendler:
     haberler = t['haberler']
     for h in haberler:
         haberekle(id, h['title'], h['url'], h['resim'], h['kaynak'])
-c.execute("select*FROM haberler LIMIT 100")
+c.execute("select tred,title,kaynak,tarihFROM haberler ORDER BY rowid DESC LIMIT 100")
 sonuc=c.fetchall()
 
-st.table(sonuc)
+st.dataframe(sonuc)
